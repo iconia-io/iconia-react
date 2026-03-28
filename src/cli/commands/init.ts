@@ -8,7 +8,6 @@ const TEMPLATE = `import type { IconiaConfig } from 'iconia';
 const config: IconiaConfig = {
   apiKey: process.env.ICONIA_API_KEY ?? '',
   collections: ['my-icons'],
-  apiUrl: 'https://api.iconia.io',
 };
 
 export default config;

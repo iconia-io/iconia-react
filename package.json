@@ -1,6 +1,6 @@
 {
   "name": "iconia",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Fetch and generate React icon components from your Iconia collections",
   "bin": {
     "iconia": "./dist/cli/index.js"

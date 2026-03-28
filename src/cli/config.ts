@@ -4,10 +4,11 @@ import path from 'path';
 const configSchema = z.object({
   apiKey: z.string().min(1, 'apiKey is required'),
   collections: z.array(z.string()).min(1, 'At least one collection is required'),
-  apiUrl: z.string().default('https://api.iconia.io'),
 });
 
-export type IconiaConfig = z.infer<typeof configSchema>;
+export type IconiaConfig = z.infer<typeof configSchema> & { apiUrl: string };
+
+const API_URL = 'https://api.iconia.io';
 
 export async function loadConfig(): Promise<IconiaConfig> {
   const configPath = path.resolve(process.cwd(), 'iconia.config.ts');
@@ -37,5 +38,5 @@ export async function loadConfig(): Promise<IconiaConfig> {
     throw new Error(`Invalid iconia config:\n${issues}`);
   }
 
-  return result.data;
+  return { ...result.data, apiUrl: API_URL };
 }
