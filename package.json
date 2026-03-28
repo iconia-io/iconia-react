@@ -1,6 +1,6 @@
 {
   "name": "iconia",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Fetch and generate React icon components from your Iconia collections",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -19,8 +19,7 @@
   },
   "scripts": {
     "build": "bun build.ts",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "bun run build"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "commander": "14.0.3",

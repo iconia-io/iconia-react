@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import pc from 'picocolors';
 import { svgToIconNode } from '../generator/svgParser';
 import { generateCollectionFile, generateCollectionDts } from '../generator/componentGenerator';
@@ -7,7 +8,10 @@ import type { RemoteIcon } from './api';
 
 /** Directory where generated collection files are written (the package root) */
 export function getPackageDir(): string {
-  return path.resolve(__dirname, '../..');
+  // import.meta.url resolves at runtime to the actual installed location,
+  // unlike __dirname which Bun bakes in as the build-machine path.
+  // dist/cli/index.js → ../../ = package root (node_modules/iconia/)
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 }
 
 /**
