@@ -1,8 +1,7 @@
-import { forwardRef, createElement } from 'react';
-import type { SVGProps, ForwardRefExoticComponent, RefAttributes } from 'react';
-import type { IconNode, IconNodeElement } from './types';
-
-export type { IconNode, IconNodeElement } from './types';
+import { forwardRef, createElement } from "react";
+import type { SVGProps, ForwardRefExoticComponent, RefAttributes } from "react";
+import type { IconNode } from "./types";
+export type { IconNode, IconNodeElement } from "./types";
 
 export type IconComponent = ForwardRefExoticComponent<
   SVGProps<SVGSVGElement> & RefAttributes<SVGSVGElement>
@@ -11,7 +10,7 @@ export type IconComponent = ForwardRefExoticComponent<
 function renderNode(nodes: IconNode): ReturnType<typeof createElement>[] {
   return nodes.map(([tag, attrs, children], i) =>
     createElement(
-      tag as keyof SVGElementTagNameMap,
+      tag as string,
       { key: i, ...attrs },
       ...(children ? renderNode(children) : []),
     ),
@@ -26,8 +25,14 @@ export function createIconiaIcon(
   const Component = forwardRef<SVGSVGElement, SVGProps<SVGSVGElement>>(
     ({ children, ...props }, ref) =>
       createElement(
-        'svg',
-        { ref, xmlns: 'http://www.w3.org/2000/svg', viewBox: '0 0 24 24', ...svgAttrs, ...props },
+        "svg",
+        {
+          ref,
+          xmlns: "http://www.w3.org/2000/svg",
+          viewBox: "0 0 24 24",
+          ...svgAttrs,
+          ...props,
+        },
         ...renderNode(iconNode),
         children,
       ),
@@ -36,4 +41,4 @@ export function createIconiaIcon(
   return Component;
 }
 
-export type { IconiaConfig } from './cli/config';
+export type { IconiaConfig } from "./cli/config";

@@ -41,7 +41,7 @@ function parseAttributes(str: string): Record<string, string> {
   let m: RegExpExecArray | null;
   while ((m = re.exec(str)) !== null) {
     // Convert kebab-case and namespace prefixes to camelCase
-    const key = m[1]
+    const key = m[1]!
       .replace(/^xlink:/, '')
       .replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
     attrs[key] = m[2] ?? m[3] ?? '';
