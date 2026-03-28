@@ -54,6 +54,31 @@ export function generateCollection(
   return entries.length;
 }
 
+/**
+ * Ensure the installed package.json has a wildcard export so that
+ * `import { ... } from 'iconia/collection-slug'` works without reinstall.
+ * Safe to call repeatedly — only writes if the entry is missing.
+ */
+export function ensureWildcardExport(): void {
+  const pkgPath = path.join(getPackageDir(), 'package.json');
+  try {
+    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')) as Record<string, unknown>;
+    const exports = (pkg['exports'] ?? {}) as Record<string, unknown>;
+    if (exports['./*']) return; // already present
+    pkg['exports'] = {
+      '.': exports['.'] ?? {
+        types: './dist/index.d.ts',
+        import: './dist/index.js',
+        require: './dist/index.cjs',
+      },
+      './*': { import: './*.js', types: './*.d.ts' },
+    };
+    fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8');
+  } catch {
+    // non-fatal — older Node/bundlers resolve files without exports map anyway
+  }
+}
+
 /** Delete generated files for a collection */
 export function deleteCollection(collectionSlug: string): void {
   const packageDir = getPackageDir();

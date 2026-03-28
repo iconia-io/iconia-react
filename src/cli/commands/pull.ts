@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import ora from 'ora';
 import { loadConfig } from '../config';
 import { apiGetIcons } from '../api';
-import { generateCollection } from '../generate';
+import { generateCollection, ensureWildcardExport } from '../generate';
 import { readLock, writeLock, updateLockCollection } from '../lock';
 import { toPascalCase } from '../../generator/componentGenerator';
 
@@ -66,6 +66,7 @@ export const pullCommand = new Command('pull')
     }
 
     writeLock(lock);
+    ensureWildcardExport();
 
     spinner.succeed(
       pc.green(`Generated ${totalGenerated} icon${totalGenerated !== 1 ? 's' : ''} across ${generated.length} collection${generated.length !== 1 ? 's' : ''}`),

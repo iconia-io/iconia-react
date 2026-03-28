@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import ora from 'ora';
 import { loadConfig } from '../config';
 import { apiGetIcons } from '../api';
-import { generateCollection } from '../generate';
+import { generateCollection, ensureWildcardExport } from '../generate';
 import { readLock, writeLock, updateLockCollection } from '../lock';
 
 export const syncCommand = new Command('sync')
@@ -96,6 +96,7 @@ export const syncCommand = new Command('sync')
     }
 
     writeLock(lock);
+    if (regenerated > 0) ensureWildcardExport();
 
     if (regenerated === 0) {
       spinner.succeed(pc.green('Everything is up to date.'));
