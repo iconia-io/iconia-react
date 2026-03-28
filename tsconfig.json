@@ -16,7 +16,6 @@
     "noEmit": true,
 
     // Best practices
-    "ignoreDeprecations": "6.0",
     "strict": true,
     "skipLibCheck": true,
     "noFallthroughCasesInSwitch": true,
