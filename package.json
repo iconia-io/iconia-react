@@ -1,6 +1,6 @@
 {
   "name": "iconia",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Fetch and generate React icon components from your Iconia collections",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -13,8 +13,8 @@
       "require": "./dist/index.cjs"
     },
     "./*": {
-      "import": "./*.js",
-      "types": "./*.d.ts"
+      "import": "./dist/*.js",
+      "types": "./dist/*.d.ts"
     }
   },
   "peerDependencies": {

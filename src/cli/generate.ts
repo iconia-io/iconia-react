@@ -6,12 +6,11 @@ import { svgToIconNode } from '../generator/svgParser';
 import { generateCollectionFile, generateCollectionDts } from '../generator/componentGenerator';
 import type { RemoteIcon } from './api';
 
-/** Directory where generated collection files are written (the package root) */
-export function getPackageDir(): string {
-  // import.meta.url resolves at runtime to the actual installed location,
-  // unlike __dirname which Bun bakes in as the build-machine path.
-  // dist/cli/index.js → ../../ = package root (node_modules/iconia/)
-  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
+/** The dist/ directory of the installed iconia package */
+export function getDistDir(): string {
+  // import.meta.url resolves at runtime to the actual installed location:
+  // node_modules/iconia/dist/cli/index.js → ../ = node_modules/iconia/dist/
+  return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 }
 
 /**
@@ -39,14 +38,14 @@ export function generateCollection(
 
   if (entries.length === 0) return 0;
 
-  const packageDir = getPackageDir();
+  const distDir = getDistDir();
   fs.writeFileSync(
-    path.join(packageDir, `${collectionSlug}.js`),
+    path.join(distDir, `${collectionSlug}.js`),
     generateCollectionFile(entries),
     'utf-8',
   );
   fs.writeFileSync(
-    path.join(packageDir, `${collectionSlug}.d.ts`),
+    path.join(distDir, `${collectionSlug}.d.ts`),
     generateCollectionDts(entries.map((e) => e.name)),
     'utf-8',
   );
@@ -60,18 +59,20 @@ export function generateCollection(
  * Safe to call repeatedly — only writes if the entry is missing.
  */
 export function ensureWildcardExport(): void {
-  const pkgPath = path.join(getPackageDir(), 'package.json');
+  const pkgPath = path.join(getDistDir(), '..', 'package.json');
   try {
     const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8')) as Record<string, unknown>;
     const exports = (pkg['exports'] ?? {}) as Record<string, unknown>;
-    if (exports['./*']) return; // already present
+    const current = exports['./*'] as Record<string, string> | undefined;
+    // Check if already pointing at dist/
+    if (current?.['import']?.startsWith('./dist/')) return;
     pkg['exports'] = {
       '.': exports['.'] ?? {
         types: './dist/index.d.ts',
         import: './dist/index.js',
         require: './dist/index.cjs',
       },
-      './*': { import: './*.js', types: './*.d.ts' },
+      './*': { import: './dist/*.js', types: './dist/*.d.ts' },
     };
     fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n', 'utf-8');
   } catch {
@@ -81,9 +82,9 @@ export function ensureWildcardExport(): void {
 
 /** Delete generated files for a collection */
 export function deleteCollection(collectionSlug: string): void {
-  const packageDir = getPackageDir();
-  const js = path.join(packageDir, `${collectionSlug}.js`);
-  const dts = path.join(packageDir, `${collectionSlug}.d.ts`);
+  const distDir = getDistDir();
+  const js = path.join(distDir, `${collectionSlug}.js`);
+  const dts = path.join(distDir, `${collectionSlug}.d.ts`);
   if (fs.existsSync(js)) fs.unlinkSync(js);
   if (fs.existsSync(dts)) fs.unlinkSync(dts);
 }
