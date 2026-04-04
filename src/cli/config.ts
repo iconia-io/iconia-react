@@ -38,5 +38,9 @@ export async function loadConfig(): Promise<IconiaConfig> {
     throw new Error(`Invalid iconia config:\n${issues}`);
   }
 
-  return { ...result.data, apiUrl: API_URL };
+  const internal = (rawConfig as { __internal?: { endpoint?: string } })
+    .__internal;
+  const apiUrl = internal?.endpoint ?? API_URL;
+
+  return { ...result.data, apiUrl };
 }
