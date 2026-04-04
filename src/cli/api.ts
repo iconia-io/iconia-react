@@ -93,21 +93,29 @@ export async function apiGetIcons(
   return data.icons;
 }
 
-export async function apiUploadIcon(
+export type BatchIconInput = {
+  name: string;
+  slug: string;
+  svgContent: string;
+  tags?: string[];
+};
+
+export type BatchResult = {
+  slug: string;
+  status: "uploaded" | "duplicate" | "error";
+  error?: string;
+};
+
+export async function apiUploadBatch(
   config: IconiaConfig,
-  payload: {
-    collectionSlug: string;
-    name: string;
-    slug: string;
-    svgContent: string;
-    tags?: string[];
-  },
-): Promise<boolean> {
+  collectionSlug: string,
+  items: BatchIconInput[],
+): Promise<BatchResult[]> {
   const res = await fetchWithRetry((signal) =>
     fetch(new URL("/v1/icons", config.apiUrl).toString(), {
       method: "POST",
       headers: authHeaders(config),
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ collectionSlug, icons: items }),
       signal,
     }),
   );
@@ -116,7 +124,8 @@ export async function apiUploadIcon(
     try {
       body = (await res.json()) as { error?: string };
     } catch {}
-    throw new Error(body.error ?? res.statusText);
+    throw new Error(`API error ${res.status}: ${body.error ?? res.statusText}`);
   }
-  return true;
+  const data = (await res.json()) as { results: BatchResult[] };
+  return data.results;
 }

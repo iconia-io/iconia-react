@@ -4,6 +4,7 @@ import path from "path";
 const configSchema = z.object({
   apiKey: z.string().min(1, "apiKey is required"),
   collections: z.array(z.string()).default([]),
+  uploadBatchSize: z.number().int().min(1).max(100).default(50),
 });
 
 export type IconiaConfig = z.infer<typeof configSchema> & { apiUrl?: string };

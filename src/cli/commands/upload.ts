@@ -4,8 +4,9 @@ import path from "path";
 import pc from "picocolors";
 import ora from "ora";
 import { loadConfig } from "../config";
-import { apiUploadIcon } from "../api";
+import { apiUploadBatch } from "../api";
 import { ac } from "../abort";
+
 
 function toSlug(filename: string): string {
   return path
@@ -87,31 +88,47 @@ export const uploadCommand = new Command("upload")
       let failed = 0;
       const errors: string[] = [];
 
-      for (const file of files) {
+      for (let i = 0; i < files.length; i += config.uploadBatchSize) {
         if (ac.signal.aborted) break;
-        const slug = toSlug(file);
-        if (!slug) {
-          errors.push(`${path.basename(file)}: could not derive a valid slug`);
-          failed++;
-          continue;
-        }
 
-        const svgContent = fs.readFileSync(file, "utf-8");
+        const batch = files.slice(i, i + config.uploadBatchSize);
+        const items = [];
 
-        try {
-          await apiUploadIcon(config, {
-            collectionSlug: opts.collection,
-            name: toName(slug),
+        for (const file of batch) {
+          const slug = toSlug(file);
+          if (!slug) {
+            errors.push(`${path.basename(file)}: could not derive a valid slug`);
+            failed++;
+            continue;
+          }
+          items.push({
             slug,
-            svgContent,
+            name: toName(slug),
+            svgContent: fs.readFileSync(file, "utf-8"),
             tags,
           });
-          uploaded++;
-          spinner.text = `Uploading... (${uploaded}/${files.length})`;
-        } catch (err) {
-          errors.push(`${path.basename(file)}: ${(err as Error).message}`);
-          failed++;
         }
+
+        if (items.length === 0) continue;
+
+        try {
+          const results = await apiUploadBatch(config, opts.collection, items);
+          for (const r of results) {
+            if (r.status === "uploaded" || r.status === "duplicate") {
+              uploaded++;
+            } else {
+              errors.push(`${r.slug}: ${r.error ?? "upload failed"}`);
+              failed++;
+            }
+          }
+        } catch (err) {
+          for (const item of items) {
+            errors.push(`${item.slug}: ${(err as Error).message}`);
+            failed++;
+          }
+        }
+
+        spinner.text = `Uploading... (${uploaded + failed}/${files.length})`;
       }
 
       if (failed === 0) {
