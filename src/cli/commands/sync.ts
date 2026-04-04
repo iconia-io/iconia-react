@@ -22,6 +22,11 @@ export const syncCommand = new Command('sync')
 
     const slugs = opts.collection ? [opts.collection] : config.collections;
 
+    if (slugs.length === 0) {
+      spinner.warn(pc.yellow('No collections in config. Add one with `iconia add <slug>`.'));
+      return;
+    }
+
     if (opts.collection && !config.collections.includes(opts.collection)) {
       spinner.fail(pc.red(`Collection '${opts.collection}' is not in your config.`));
       process.exit(1);

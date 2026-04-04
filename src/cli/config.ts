@@ -3,9 +3,7 @@ import path from "path";
 
 const configSchema = z.object({
   apiKey: z.string().min(1, "apiKey is required"),
-  collections: z
-    .array(z.string())
-    .min(1, "At least one collection is required"),
+  collections: z.array(z.string()).default([]),
 });
 
 export type IconiaConfig = z.infer<typeof configSchema> & { apiUrl?: string };

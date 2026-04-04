@@ -58,10 +58,10 @@
   "author": "Wyesoftware",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Wyesoftware/iconia.git"
+    "url": "git+https://github.com/iconia-io/iconia-react.git"
   },
   "bugs": {
-    "url": "https://github.com/Wyesoftware/iconia/issues"
+    "url": "https://github.com/iconia-io/iconia-react/issues"
   },
-  "homepage": "https://github.com/Wyesoftware/iconia#readme"
+  "homepage": "https://github.com/iconia-io/iconia-react#readme"
 }
