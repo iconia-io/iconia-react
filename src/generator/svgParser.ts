@@ -149,9 +149,9 @@ export function svgToIconNode(svgContent: string): {
   const svgAttrs = parseAttributes(svgMatch?.[1] ?? '');
   delete svgAttrs.xmlns;
   delete svgAttrs.xmlnsXlink;
-  // Keep viewBox, remove the rest of the clutter
-  const { viewBox } = svgAttrs;
-  const cleanSvgAttrs: Record<string, string> = viewBox ? { viewBox } : {};
+  // Remove only non-visual namespace attrs; width/height already stripped by cleanSvg
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { xmlns, xmlnsXlink, ...cleanSvgAttrs } = svgAttrs;
 
   const innerMatch = cleaned.match(/<svg[^>]*>([\s\S]*)<\/svg>/i);
   const innerXml = innerMatch?.[1]?.trim() ?? '';
