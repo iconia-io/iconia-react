@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import pc from 'picocolors';
 
-const TEMPLATE = `import type { IconiaConfig } from 'iconia';
+const TEMPLATE = `import type { IconiaConfig } from '@iconia/react';
 
 const config: IconiaConfig = {
   apiKey: process.env.ICONIA_API_KEY ?? '',
@@ -31,6 +31,6 @@ export const initCommand = new Command('init')
     console.log(`  2. Edit ${pc.cyan('iconia.config.ts')} to add your collections`);
     console.log(`  3. Run ${pc.cyan('npx iconia pull')} to fetch icons`);
     console.log(
-      `\nImport icons: ${pc.cyan("import { MyIcon } from 'iconia/my-collection'")}`,
+      `\nImport icons: ${pc.cyan("import { MyIcon } from '@iconia/react/my-collection'")}`,
     );
   });

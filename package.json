@@ -1,6 +1,6 @@
 {
-  "name": "iconia",
-  "version": "0.1.3",
+  "name": "@iconia/react",
+  "version": "0.1.0",
   "description": "Fetch and generate React icon components from your Iconia collections",
   "type": "module",
   "main": "./dist/index.cjs",
@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@types/bun": "1.3.11",
-    "@types/node": "25.5.0",
+    "@types/node": "25.5.2",
     "@types/react": "19.2.14",
     "bun-plugin-dts": "0.4.0",
     "typescript": "6.0.2"

@@ -1,22 +1,34 @@
-# iconia
+# @iconia/react
 
 CLI and React component library for [iconia.io](https://iconia.io) — manage SVG icon collections and import them as typed React components at build time.
 
 ## Install
 
 ```bash
-npm install iconia
+npm install @iconia/react
 # or
-bun add iconia
+bun add @iconia/react
 # or
-pnpm add iconia
+pnpm add @iconia/react
 ```
 
 ## Quick start
 
 ```bash
-npx iconia init        # create iconia.config.ts
-npx iconia add my-icons  # add a collection and download icons
+npx @iconia/react init        # create iconia.config.ts
+npx @iconia/react add my-icons  # add a collection and download icons
+```
+
+
+### Shorter commands after install
+
+Once `@iconia/react` is installed in your project you can drop the package name and use `iconia` directly:
+
+```bash
+iconia init
+iconia add my-icons
+iconia sync
+iconia pull
 ```
 
 ## Configuration
@@ -24,11 +36,11 @@ npx iconia add my-icons  # add a collection and download icons
 `iconia.config.ts` in your project root:
 
 ```ts
-import type { IconiaConfig } from 'iconia';
+import type { IconiaConfig } from "@iconia/react";
 
 export default {
   apiKey: process.env.ICONIA_API_KEY,
-  collections: ['my-icons', 'team-brand'],
+  collections: ["my-icons", "team-brand"],
 } satisfies IconiaConfig;
 ```
 
@@ -43,7 +55,7 @@ Set `ICONIA_API_KEY` to an API key generated in your [iconia.io dashboard](https
 Create a starter `iconia.config.ts` in the current directory.
 
 ```bash
-npx iconia init
+npx @iconia/react init
 ```
 
 ---
@@ -53,8 +65,8 @@ npx iconia init
 Add a collection to your project: validates it exists on the server, updates `iconia.config.ts`, downloads icons and generates React components.
 
 ```bash
-npx iconia add my-icons
-npx iconia add team-brand
+npx @iconia/react add my-icons
+npx @iconia/react add team-brand
 ```
 
 ---
@@ -64,7 +76,7 @@ npx iconia add team-brand
 Remove a collection: deletes generated files and removes the slug from `iconia.config.ts`.
 
 ```bash
-npx iconia remove my-icons
+npx @iconia/react remove my-icons
 ```
 
 ---
@@ -74,8 +86,8 @@ npx iconia remove my-icons
 Full re-download and regeneration of all (or one) collection. Replaces existing generated files.
 
 ```bash
-npx iconia pull                    # all collections from config
-npx iconia pull --collection my-icons  # one collection only
+npx @iconia/react pull                         # all collections from config
+npx @iconia/react pull --collection my-icons   # one collection only
 ```
 
 ---
@@ -85,8 +97,8 @@ npx iconia pull --collection my-icons  # one collection only
 Incremental update: compares server fingerprints with the local `.iconia-lock.json` and only regenerates collections that have changes (new icons, updated icons, deleted icons).
 
 ```bash
-npx iconia sync                    # all collections
-npx iconia sync --collection my-icons
+npx @iconia/react sync                         # all collections
+npx @iconia/react sync --collection my-icons
 ```
 
 Output shows a diff per collection:
@@ -104,12 +116,13 @@ Output shows a diff per collection:
 Upload a single SVG file or an entire folder of SVGs to a collection on iconia.io.
 
 ```bash
-npx iconia upload ./icons/arrow.svg --collection my-icons
-npx iconia upload ./icons/ --collection my-icons
-npx iconia upload ./icons/ --collection my-icons --tags ui,navigation
+npx @iconia/react upload ./icons/arrow.svg --collection my-icons
+npx @iconia/react upload ./icons/ --collection my-icons
+npx @iconia/react upload ./icons/ --collection my-icons --tags ui,navigation
 ```
 
 Options:
+
 - `-c, --collection <slug>` — target collection **(required)**
 - `--tags <tags>` — comma-separated tags applied to all uploaded icons
 
@@ -120,7 +133,7 @@ Options:
 After `pull` or `sync`, import icons directly from the collection:
 
 ```tsx
-import { ArrowRight, Home, Settings } from 'iconia/my-icons';
+import { ArrowRight, Home, Settings } from "@iconia/react/my-icons";
 
 export function App() {
   return (

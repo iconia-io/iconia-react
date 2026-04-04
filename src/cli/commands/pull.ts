@@ -75,6 +75,6 @@ export const pullCommand = new Command('pull')
     if (generated.length > 0) {
       const first = generated[0] ?? '';
       const example = toPascalCase(byCollection.get(first)?.[0]?.name ?? 'MyIcon');
-      console.log(`\nImport icons:\n  ${pc.cyan(`import { ${example} } from 'iconia/${first}'`)}`);
+      console.log(`\nImport icons:\n  ${pc.cyan(`import { ${example} } from '@iconia/react/${first}'`)}`);
     }
   });

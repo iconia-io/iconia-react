@@ -15,7 +15,7 @@ export type RemoteCollection = {
   id: string;
   slug: string;
   name: string;
-  type: 'official' | 'private' | 'public';
+  type: 'branded' | 'private' | 'public';
 };
 
 function authHeaders(config: IconiaConfig) {

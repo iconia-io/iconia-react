@@ -46,7 +46,7 @@ export const addCommand = new Command('add')
       // Update config file
       const configPath = findConfigPath();
       if (!configPath) {
-        spinner.fail(pc.red('Config file not found. Run `npx iconia init` first.'));
+        spinner.fail(pc.red('Config file not found. Run `npx @iconia/react init` first.'));
         process.exit(1);
       }
 
@@ -87,5 +87,5 @@ export const addCommand = new Command('add')
     spinner.succeed(pc.green(`Added '${slug}' — ${count} icon${count !== 1 ? 's' : ''} generated`));
 
     const example = toPascalCase(icons[0]?.name ?? 'Icon');
-    console.log(`\nImport icons:\n  ${pc.cyan(`import { ${example} } from 'iconia/${slug}'`)}`);
+    console.log(`\nImport icons:\n  ${pc.cyan(`import { ${example} } from '@iconia/react/${slug}'`)}`);
   });

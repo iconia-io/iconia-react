@@ -55,7 +55,7 @@ export function generateCollection(
 
 /**
  * Ensure the installed package.json has a wildcard export so that
- * `import { ... } from 'iconia/collection-slug'` works without reinstall.
+ * `import { ... } from '@iconia/react/collection-slug'` works without reinstall.
  * Safe to call repeatedly — only writes if the entry is missing.
  */
 export function ensureWildcardExport(): void {

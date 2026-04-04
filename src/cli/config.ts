@@ -27,7 +27,7 @@ export async function loadConfig(): Promise<IconiaConfig> {
       rawConfig = mod.default ?? mod;
     } catch {
       throw new Error(
-        "Could not find iconia.config.ts or iconia.config.js\nRun `npx iconia init` to create one.",
+        "Could not find iconia.config.ts or iconia.config.js\nRun `npx @iconia/react init` to create one.",
       );
     }
   }
