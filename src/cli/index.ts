@@ -1,5 +1,4 @@
-process.on('SIGINT', () => process.exit(130));
-
+import './abort';
 import { Command } from 'commander';
 import { initCommand } from './commands/init';
 import { pullCommand } from './commands/pull';

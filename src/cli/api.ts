@@ -1,4 +1,5 @@
 import type { IconiaConfig } from "./config";
+import { ac } from "./abort";
 
 export type RemoteIcon = {
   id: string;
@@ -26,11 +27,11 @@ function authHeaders(config: IconiaConfig) {
 }
 
 async function fetchWithRetry(
-  fn: () => Promise<Response>,
+  fn: (signal: AbortSignal) => Promise<Response>,
   maxRetries = 3,
 ): Promise<Response> {
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
-    const res = await fn();
+    const res = await fn(ac.signal);
     if (res.status !== 429 || attempt === maxRetries) return res;
     const retryAfter = parseInt(res.headers.get("Retry-After") ?? "60", 10);
     process.stderr.write(
@@ -46,17 +47,19 @@ async function fetchWithRetry(
         resolve();
       }, retryAfter * 1000);
       process.once("SIGINT", onSignal);
+      ac.signal.addEventListener("abort", onSignal, { once: true });
     });
   }
-  return fn();
+  return fn(ac.signal);
 }
 
 export async function apiGetCollections(
   config: IconiaConfig,
 ): Promise<RemoteCollection[]> {
-  const res = await fetchWithRetry(() =>
+  const res = await fetchWithRetry((signal) =>
     fetch(new URL("/v1/collections", config.apiUrl).toString(), {
       headers: authHeaders(config),
+      signal,
     }),
   );
   if (!res.ok) {
@@ -76,8 +79,8 @@ export async function apiGetIcons(
 ): Promise<RemoteIcon[]> {
   const url = new URL("/v1/collections/icons", config.apiUrl);
   url.searchParams.set("collections", slugs.join(","));
-  const res = await fetchWithRetry(() =>
-    fetch(url.toString(), { headers: authHeaders(config) }),
+  const res = await fetchWithRetry((signal) =>
+    fetch(url.toString(), { headers: authHeaders(config), signal }),
   );
   if (!res.ok) {
     let body: { error?: string } = {};
@@ -100,11 +103,12 @@ export async function apiUploadIcon(
     tags?: string[];
   },
 ): Promise<boolean> {
-  const res = await fetchWithRetry(() =>
+  const res = await fetchWithRetry((signal) =>
     fetch(new URL("/v1/icons", config.apiUrl).toString(), {
       method: "POST",
       headers: authHeaders(config),
       body: JSON.stringify(payload),
+      signal,
     }),
   );
   if (!res.ok) {
