@@ -80,6 +80,52 @@ export function ensureWildcardExport(): void {
   }
 }
 
+/**
+ * Generate .js and .d.ts files for a variant inside a collection sub-directory.
+ * Output: dist/{collectionSlug}/{variantSlug}.js (and .d.ts)
+ * Importable as: import { ... } from '@iconia/react/{collectionSlug}/{variantSlug}'
+ * Returns number of icons successfully generated.
+ */
+export function generateVariant(
+  collectionSlug: string,
+  variant: string,
+  variantIcons: RemoteIcon[],
+): number {
+  const entries: Array<{
+    name: string;
+    iconNode: ReturnType<typeof svgToIconNode>['iconNode'];
+    svgAttrs: Record<string, string>;
+  }> = [];
+
+  for (const icon of variantIcons) {
+    try {
+      const { iconNode, svgAttrs } = svgToIconNode(icon.svgContent);
+      entries.push({ name: icon.name, iconNode, svgAttrs });
+    } catch (err) {
+      console.warn(pc.yellow(`  ⚠ Skipped ${icon.name}: ${(err as Error).message}`));
+    }
+  }
+
+  if (entries.length === 0) return 0;
+
+  const distDir = getDistDir();
+  const subDir = path.join(distDir, collectionSlug);
+  if (!fs.existsSync(subDir)) fs.mkdirSync(subDir, { recursive: true });
+
+  fs.writeFileSync(
+    path.join(subDir, `${variant}.js`),
+    generateCollectionFile(entries),
+    'utf-8',
+  );
+  fs.writeFileSync(
+    path.join(subDir, `${variant}.d.ts`),
+    generateCollectionDts(entries.map((e) => e.name)),
+    'utf-8',
+  );
+
+  return entries.length;
+}
+
 /** Delete generated files for a collection */
 export function deleteCollection(collectionSlug: string): void {
   const distDir = getDistDir();

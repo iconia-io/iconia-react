@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import ora from 'ora';
 import { loadConfig } from '../config';
 import { apiGetIcons } from '../api';
-import { generateCollection, ensureWildcardExport } from '../generate';
+import { generateCollection, generateVariant, ensureWildcardExport } from '../generate';
 import { readLock, writeLock, updateLockCollection } from '../lock';
 
 export const syncCommand = new Command('sync')
@@ -87,9 +87,21 @@ export const syncCommand = new Command('sync')
         console.log(pc.red(`  ${slug}: -${removed.length} removed`) + pc.dim(` (${removed.slice(0, 5).join(', ')}${removed.length > 5 ? '…' : ''})`));
       }
 
-      // Regenerate full collection file (only if there are remote icons)
+      // Regenerate collection files split by variant
       if (remoteList.length > 0) {
-        generateCollection(slug, remoteList);
+        const noVariant = remoteList.filter((i) => !i.variantSlug);
+        if (noVariant.length > 0) generateCollection(slug, noVariant);
+
+        const byVariant = new Map<string, typeof remoteList>();
+        for (const icon of remoteList) {
+          if (!icon.variantSlug) continue;
+          const list = byVariant.get(icon.variantSlug) ?? [];
+          list.push(icon);
+          byVariant.set(icon.variantSlug, list);
+        }
+        for (const [variant, variantIcons] of byVariant) {
+          generateVariant(slug, variant, variantIcons);
+        }
       }
 
       lock = updateLockCollection(lock, slug, remoteList.map((i) => ({ slug: i.slug, fingerprint: i.fingerprint })));

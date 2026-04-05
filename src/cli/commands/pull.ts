@@ -3,7 +3,7 @@ import pc from 'picocolors';
 import ora from 'ora';
 import { loadConfig } from '../config';
 import { apiGetIcons } from '../api';
-import { generateCollection, ensureWildcardExport } from '../generate';
+import { generateCollection, generateVariant, ensureWildcardExport } from '../generate';
 import { readLock, writeLock, updateLockCollection } from '../lock';
 import { toPascalCase } from '../../generator/componentGenerator';
 
@@ -50,36 +50,65 @@ export const pullCommand = new Command('pull')
 
     spinner.text = `Generating ${icons.length} icon${icons.length !== 1 ? 's' : ''}...`;
 
-    // Group by collection
-    const byCollection = new Map<string, typeof icons>();
+    // Group by collection, then by variant (null = no variant)
+    const byCollection = new Map<string, Map<string | null, typeof icons>>();
     for (const icon of icons) {
-      const list = byCollection.get(icon.collectionSlug) ?? [];
+      if (!byCollection.has(icon.collectionSlug)) {
+        byCollection.set(icon.collectionSlug, new Map());
+      }
+      const byVariant = byCollection.get(icon.collectionSlug)!;
+      const key = icon.variantSlug || null;
+      const list = byVariant.get(key) ?? [];
       list.push(icon);
-      byCollection.set(icon.collectionSlug, list);
+      byVariant.set(key, list);
     }
 
     let lock = readLock();
     let totalGenerated = 0;
-    const generated: string[] = [];
+    const generatedCollections: string[] = [];
+    let firstExampleIcon: string | undefined;
+    let firstExamplePath: string | undefined;
 
-    for (const [slug, colIcons] of byCollection) {
-      const count = generateCollection(slug, colIcons);
-      if (count === 0) continue;
-      totalGenerated += count;
-      generated.push(slug);
-      lock = updateLockCollection(lock, slug, colIcons.map((i) => ({ slug: i.slug, fingerprint: i.fingerprint })));
+    for (const [colSlug, byVariant] of byCollection) {
+      let colGenerated = 0;
+
+      // Icons without a variant → dist/{colSlug}.js
+      const noVariantIcons = byVariant.get(null) ?? [];
+      if (noVariantIcons.length > 0) {
+        const count = generateCollection(colSlug, noVariantIcons);
+        colGenerated += count;
+        if (!firstExampleIcon && noVariantIcons[0]) {
+          firstExampleIcon = noVariantIcons[0].name;
+          firstExamplePath = colSlug;
+        }
+      }
+
+      // Icons with a variant → dist/{colSlug}/{variantSlug}.js
+      for (const [variant, variantIcons] of byVariant) {
+        if (variant === null) continue;
+        const count = generateVariant(colSlug, variant, variantIcons);
+        colGenerated += count;
+        if (!firstExampleIcon && variantIcons[0]) {
+          firstExampleIcon = variantIcons[0].name;
+          firstExamplePath = `${colSlug}/${variant}`;
+        }
+      }
+
+      if (colGenerated === 0) continue;
+      totalGenerated += colGenerated;
+      generatedCollections.push(colSlug);
+      lock = updateLockCollection(lock, colSlug, [...byVariant.values()].flat().map((i) => ({ slug: i.slug, fingerprint: i.fingerprint })));
     }
 
     writeLock(lock);
     ensureWildcardExport();
 
     spinner.succeed(
-      pc.green(`Generated ${totalGenerated} icon${totalGenerated !== 1 ? 's' : ''} across ${generated.length} collection${generated.length !== 1 ? 's' : ''}`),
+      pc.green(`Generated ${totalGenerated} icon${totalGenerated !== 1 ? 's' : ''} across ${generatedCollections.length} collection${generatedCollections.length !== 1 ? 's' : ''}`),
     );
 
-    if (generated.length > 0) {
-      const first = generated[0] ?? '';
-      const example = toPascalCase(byCollection.get(first)?.[0]?.name ?? 'MyIcon');
-      console.log(`\nImport icons:\n  ${pc.cyan(`import { ${example} } from '@iconia/react/${first}'`)}`);
+    if (firstExamplePath && firstExampleIcon) {
+      const example = toPascalCase(firstExampleIcon);
+      console.log(`\nImport icons:\n  ${pc.cyan(`import { ${example} } from '@iconia/react/${firstExamplePath}'`)}`);
     }
   });

@@ -39,12 +39,12 @@ iconia pull
 import type { IconiaConfig } from "@iconia/react";
 
 export default {
-  apiKey: process.env.ICONIA_API_KEY,
   collections: ["my-icons", "team-brand"],
+  uploadBatchSize: 50, // icons per upload request, 1–100 (default: 50)
 } satisfies IconiaConfig;
 ```
 
-Set `ICONIA_API_KEY` to an API key generated in your [iconia.io dashboard](https://iconia.io/settings/api-keys).
+The CLI reads the API key from the `ICONIA_API_KEY` environment variable. You can also set `apiKey` directly in the config file, but using an env var is recommended. Generate a key in your [iconia.io dashboard](https://iconia.io/settings/api-keys).
 
 ---
 
@@ -113,17 +113,19 @@ Output shows a diff per collection:
 
 ### `iconia upload <path>`
 
-Upload a single SVG file or an entire folder of SVGs to a collection on iconia.io.
+Upload a single SVG file or an entire folder of SVGs to a collection on iconia.io. Sends icons in batches (configurable via `uploadBatchSize`). Automatically retries on rate limiting.
 
 ```bash
 npx @iconia/react upload ./icons/arrow.svg --collection my-icons
 npx @iconia/react upload ./icons/ --collection my-icons
 npx @iconia/react upload ./icons/ --collection my-icons --tags ui,navigation
+npx @iconia/react upload ./solid/ --collection my-icons --variant solid
 ```
 
 Options:
 
 - `-c, --collection <slug>` — target collection **(required)**
+- `--variant <slug>` — assign all uploaded icons to a named variant (e.g. `solid`, `outline`)
 - `--tags <tags>` — comma-separated tags applied to all uploaded icons
 
 ---
@@ -147,6 +149,21 @@ export function App() {
 ```
 
 All icons accept standard `SVGProps<SVGSVGElement>` and forward refs.
+
+### Variants
+
+Collections can contain multiple variants of the same icon set (e.g. solid, outline, filled). Each variant is available as a separate sub-path:
+
+```tsx
+import { ArrowRight } from "@iconia/react/my-icons/solid";
+import { ArrowRight as ArrowRightOutline } from "@iconia/react/my-icons/outline";
+```
+
+Icons without a variant are imported directly from the collection path:
+
+```tsx
+import { ArrowRight } from "@iconia/react/my-icons";
+```
 
 ---
 

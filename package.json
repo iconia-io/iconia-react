@@ -1,6 +1,6 @@
 {
   "name": "@iconia/react",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Fetch and generate React icon components from your Iconia collections",
   "type": "module",
   "main": "./dist/index.cjs",

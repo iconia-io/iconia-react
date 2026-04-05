@@ -6,7 +6,6 @@ import pc from 'picocolors';
 const TEMPLATE = `import type { IconiaConfig } from '@iconia/react';
 
 const config: IconiaConfig = {
-  apiKey: process.env.ICONIA_API_KEY ?? '',
   collections: [],
 };
 

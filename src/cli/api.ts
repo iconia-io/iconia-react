@@ -1,4 +1,4 @@
-import type { IconiaConfig } from "./config";
+import type { ResolvedConfig } from "./config";
 import { ac } from "./abort";
 
 export type RemoteIcon = {
@@ -9,6 +9,7 @@ export type RemoteIcon = {
   fingerprint: string;
   collectionSlug: string;
   collectionId: string;
+  variantSlug: string | null;
   tags: string[];
 };
 
@@ -19,7 +20,7 @@ export type RemoteCollection = {
   type: "branded" | "private" | "public";
 };
 
-function authHeaders(config: IconiaConfig) {
+function authHeaders(config: ResolvedConfig) {
   return {
     Authorization: `ApiKey ${config.apiKey}`,
     "Content-Type": "application/json",
@@ -54,7 +55,7 @@ async function fetchWithRetry(
 }
 
 export async function apiGetCollections(
-  config: IconiaConfig,
+  config: ResolvedConfig,
 ): Promise<RemoteCollection[]> {
   const res = await fetchWithRetry((signal) =>
     fetch(new URL("/v1/collections", config.apiUrl).toString(), {
@@ -74,7 +75,7 @@ export async function apiGetCollections(
 }
 
 export async function apiGetIcons(
-  config: IconiaConfig,
+  config: ResolvedConfig,
   slugs: string[],
 ): Promise<RemoteIcon[]> {
   const url = new URL("/v1/collections/icons", config.apiUrl);
@@ -107,15 +108,16 @@ export type BatchResult = {
 };
 
 export async function apiUploadBatch(
-  config: IconiaConfig,
+  config: ResolvedConfig,
   collectionSlug: string,
   items: BatchIconInput[],
+  variant?: string,
 ): Promise<BatchResult[]> {
   const res = await fetchWithRetry((signal) =>
     fetch(new URL("/v1/icons", config.apiUrl).toString(), {
       method: "POST",
       headers: authHeaders(config),
-      body: JSON.stringify({ collectionSlug, icons: items }),
+      body: JSON.stringify({ collectionSlug, variant, icons: items }),
       signal,
     }),
   );

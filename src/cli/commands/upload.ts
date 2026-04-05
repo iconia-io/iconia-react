@@ -46,12 +46,13 @@ export const uploadCommand = new Command("upload")
   .description("Upload SVG file(s) to an Iconia collection")
   .argument("<path>", "SVG file or directory of SVGs")
   .requiredOption("-c, --collection <slug>", "Target collection slug")
+  .option("--variant <slug>", "Target variant within the collection")
   .option(
     "--tags <tags>",
     "Comma-separated tags to apply to all uploaded icons",
   )
   .action(
-    async (targetPath: string, opts: { collection: string; tags?: string }) => {
+    async (targetPath: string, opts: { collection: string; variant?: string; tags?: string }) => {
       const spinner = ora({ text: "Loading config...", discardStdin: false }).start();
 
       let config;
@@ -112,7 +113,7 @@ export const uploadCommand = new Command("upload")
         if (items.length === 0) continue;
 
         try {
-          const results = await apiUploadBatch(config, opts.collection, items);
+          const results = await apiUploadBatch(config, opts.collection, items, opts.variant || undefined);
           for (const r of results) {
             if (r.status === "uploaded" || r.status === "duplicate") {
               uploaded++;
