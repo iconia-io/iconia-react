@@ -1,4 +1,4 @@
-# @iconia/react
+# @iconia/react ![NPM Version](https://img.shields.io/npm/v/%40iconia%2Freact)
 
 CLI and React component library for [iconia.io](https://iconia.io) — manage SVG icon collections and import them as typed React components at build time.
 
